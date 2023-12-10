@@ -91,9 +91,9 @@ async def create_note(token: Annotated[str, Depends(oauth2_scheme)],note : str =
     try:
         payload = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
         user_id = payload.get('sub')
-        password = payload.get('pass')
+        password = bcrypt.hash(payload.get('pass'))
         user = users.find_one({'_id': ObjectId(user_id)})
-        if bcrypt.verify(password, user['password']):
+        if password == user["password"]:
             raise HTTPException(status_code=401, detail='Invalid token')
         if user is None:
             raise HTTPException(status_code=404, detail='User not found')
@@ -106,9 +106,9 @@ async def delete_note(token: Annotated[str, Depends(oauth2_scheme)],id : str = B
     try:
         payload = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
         user_id = payload.get('sub')
-        password = payload.get('pass')
+        password = bcrypt.hash(payload.get('pass'))
         user = users.find_one({'_id': ObjectId(user_id)})
-        if bcrypt.verify(password, user['password']):
+        if password == user["password"]:
             raise HTTPException(status_code=401, detail='Invalid token')
         if user is None:
             raise HTTPException(status_code=404, detail='User not found')
@@ -123,9 +123,9 @@ async def update_note(token: Annotated[str, Depends(oauth2_scheme)],note : str =
     try:
         payload = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
         user_id = payload.get('sub')
-        password = payload.get('pass')
+        password = bcrypt.hash(payload.get('pass'))
         user = users.find_one({'_id': ObjectId(user_id)})
-        if bcrypt.verify(password, user['password']):
+        if password == user["password"]:
             raise HTTPException(status_code=401, detail='Invalid token')
         if user is None:
             raise HTTPException(status_code=404, detail='User not found')
@@ -138,9 +138,3 @@ async def update_note(token: Annotated[str, Depends(oauth2_scheme)],note : str =
         return {"success" : "note updated successfully"}
     except:
         raise HTTPException(status_code=401, detail='Invalid token')
-
-
-
-
-
-
